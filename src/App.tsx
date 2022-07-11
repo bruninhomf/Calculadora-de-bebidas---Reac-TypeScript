@@ -4,36 +4,59 @@ import { Input, InputSelect } from './components/input/Input';
 import { IInput } from './interfaces/DefaultInterfaces'
 
 interface Props {
+  priceForLt: number;
   useBrand: string
-  useMl: string
+  useMl: number
   usePrice: number
 }
 
 function App() {
   
   const brands: string[] = ["Skol", "Brahma","Antartica", "Schin", "Itaipava", "Kaiser", "Crystal", "Bohemia"]
-  const ml: string[] = ["200ml", "300ml", "350ml", "600ml", "1L"]
+  const ml: string[] = ["200", "300", "350", "600", "1000"]
   
   const [useBrand, setBrand] = useState<string>("")
-  const [useMl, setMl] = useState<string>("")
+  const [useMl, setMl] = useState<number>(0)
   const [usePrice, setPrice] = useState<number>(0)
   const [useList, setList]=useState<Props[]>([])
 
-  const handleSubmit=(e: any)=>{
+  // Add event and monitor input with useState
+  const handleAdd=(e: any)=>{
     e.preventDefault() //remove refresh event submit
-    const newProduct = {useBrand, useMl, usePrice}
+    const id = Math.floor(Math.random() * 100)
+    const priceForLt = usePrice / useMl
+    const newProduct = {id, useBrand, useMl, usePrice, priceForLt}
 
     useBrand&& useMl&& usePrice&& 
       setList([...useList, newProduct])
       setBrand("")
-      setMl("")
+      setMl(0)
       setPrice(0)    
+  }
+
+  // Calculates and get the smaller value 
+  const handleCalc = () => {
+    let min: number[] = []
+    useList.map((list) => (
+      min.push(list.priceForLt)
+    ))
+    
+    const smaller = Math.min(...min)
+    // console.log("Min", min);
+    // console.log("Minimo", smaller);
+
+    if(smaller) {
+      const result = useList.find(min => min.priceForLt === smaller)
+      console.log("Find", result);
+  
+      return result
+    }
   }
 
   return (
     <div>
       <form 
-        onSubmit={handleSubmit}
+        onSubmit={handleAdd}
       >
         <InputSelect 
           id="brand"
@@ -59,23 +82,30 @@ function App() {
         />
         <Button
           label=" Add "
+          onClick={handleCalc}
         />
       </form>
       <ul>
-          {
-            useList.map((list: any) => (
-              <li>
-                {
-                  `
-                    Marca: ${list.useBrand}
-                    Litro/ml: ${list.useMl}
-                    Valor: ${list.usePrice}
-                  `
-                }
-              </li>
-            ))
-          }
+        {
+          useList.map((list: any) => (
+            
+            <li key={list.id}>
+              {
+                `
+                  Marca: ${list.useBrand}
+                  Litro/ml: ${list.useMl}
+                  Valor: ${list.usePrice}
+                `
+              }
+            </li>
+          ))
+        }
       </ul>
+      <p>
+        {
+          
+        }
+      </p>
     </div>
   );
 }

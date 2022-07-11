@@ -6,7 +6,7 @@ import { IInput } from '../../interfaces/DefaultInterfaces'
 const Button = (props: IInput) => {
   return (
     <button 
-        // onClick={props.onClick}
+        onClick={props.onClick}
     >
         {props.label}
     </button>
