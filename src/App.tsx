@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from './components/button/Button';
 import { Input, InputSelect } from './components/input/Input';
+import Result from './components/result/Result';
 import { IInput } from './interfaces/DefaultInterfaces'
 
 interface Props {
@@ -13,12 +14,14 @@ interface Props {
 function App() {
   
   const brands: string[] = ["Skol", "Brahma","Antartica", "Schin", "Itaipava", "Kaiser", "Crystal", "Bohemia"]
-  const ml: string[] = ["200", "300", "350", "600", "1000"]
+  const ml: number[] = [200, 300, 350, 475,600, 1000]
   
   const [useBrand, setBrand] = useState<string>("")
   const [useMl, setMl] = useState<number>(0)
   const [usePrice, setPrice] = useState<number>(0)
   const [useList, setList]=useState<Props[]>([])
+  const [usePrices]=useState<number[]>([])
+  const [useResult, setResult]=useState<any[]>([])
 
   // Add event and monitor input with useState
   const handleAdd=(e: any)=>{
@@ -31,28 +34,23 @@ function App() {
       setList([...useList, newProduct])
       setBrand("")
       setMl(0)
-      setPrice(0)    
+      setPrice(0)
   }
 
-  // Calculates and get the smaller value 
-  const handleCalc = () => {
-    let min: number[] = []
+  // Filter and get the smaller price 
+  useEffect(() => {
     useList.map((list) => (
-      min.push(list.priceForLt)
+      usePrices.push(list.priceForLt)
     ))
+
+    const smaller = Math.min(...usePrices)
+    const result = useList.find(list => list.priceForLt === smaller)
     
-    const smaller = Math.min(...min)
-    // console.log("Min", min);
-    // console.log("Minimo", smaller);
-
-    if(smaller) {
-      const result = useList.find(min => min.priceForLt === smaller)
-      console.log("Find", result);
+    if(result !== undefined) {
+      setResult([useResult, result])
+    }    
+  }, [useList])
   
-      return result
-    }
-  }
-
   return (
     <div>
       <form 
@@ -82,30 +80,41 @@ function App() {
         />
         <Button
           label=" Add "
-          onClick={handleCalc}
         />
       </form>
       <ul>
         {
           useList.map((list: any) => (
-            
             <li key={list.id}>
               {
                 `
-                  Marca: ${list.useBrand}
-                  Litro/ml: ${list.useMl}
-                  Valor: ${list.usePrice}
+                Marca: ${list.useBrand}
+                Litro/ml: ${list.useMl}
+                Valor: ${list.usePrice}
                 `
               }
             </li>
           ))
         }
       </ul>
-      <p>
+      <Result 
+        id="teste"
+        description=
         {
-          
+          useList.length > 1 ?
+          useResult.map((result, i) => (
+            `
+              ${
+                result.id !== undefined 
+                ? `A cerveja ${result.useBrand} de ${result.useMl} ${result.useMl < 1000 ? "ml" : "Litro"} é a cerveja mais barata, comparando com outras ${useList.length} cervejas`
+                : ""
+              }
+            `
+          ))
+          :
+          "Selecione ao menos dois itens para fazer o comparativo"
         }
-      </p>
+      />
     </div>
   );
 }
